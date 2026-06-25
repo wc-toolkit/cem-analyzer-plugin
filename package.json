@@ -28,7 +28,7 @@
     "typecheck": "tsc --noEmit",
     "prepare": "husky",
     "changeset": "changeset",
-    "release": "pnpm run build && changeset publish --access=public"
+    "release": "pnpm run build && changeset publish"
   },
   "keywords": [
     "vite",
