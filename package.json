@@ -39,6 +39,14 @@
     "cem"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wc-toolkit/cem-analyzer-plugin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wc-toolkit/cem-analyzer-plugin/issues"
+  },
+  "homepage": "https://wc-toolkit.com/cem-utilities/cem-analyzer-plugin",
   "peerDependencies": {
     "@custom-elements-manifest/analyzer": ">=0.9.0"
   },
