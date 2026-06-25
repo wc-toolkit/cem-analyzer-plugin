@@ -1,6 +1,6 @@
-# cem-analyzer-plugin
+# CEM/Analyzer Plugin
 
-Generate and keep `custom-elements.json` up to date by running the Custom Elements Manifest (CEM) analyzer from your Vite, Rollup, or Rolldown workflow.
+Generate and keep `custom-elements.json` up to date by running the [Custom Elements Manifest (CEM) Analyzer](https://custom-elements-manifest.open-wc.org/analyzer/getting-started/) from your Vite, Rollup, Rolldown, or Webpack workflow.
 
 ## Install
 
@@ -192,8 +192,6 @@ The plugin accepts the CEM analyzer CLI options plus a few integration-specific 
 - `packagejson` (`boolean`) — Include package.json data in the manifest.
 - Framework flags: `litelement`, `catalyst`, `fast`, `stencil` — enable framework-specific helpers in the analyzer.
 - `resolutionOptions` (`object`) — Passed through to the analyzer's resolver.
-- `plugins` (`array`) — Analyzer plugins to load. Requires a config file (cannot be passed via CLI args).
-- `overrideModuleCreation` (`function`) — Custom module creation hook. Requires a config file.
 
 Plugin-specific options:
 
