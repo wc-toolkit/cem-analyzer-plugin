@@ -1,0 +1,21 @@
+{
+  "name": "cem-analyzer-plugin-demo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@wc-toolkit/cem-analyzer-plugin": "file:.."
+  },
+  "devDependencies": {
+    "@custom-elements-manifest/analyzer": "^0.10.4",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.2",
+    "vite": "^5.0.0"
+  },
+  "customElements": "custom-elements.json"
+}

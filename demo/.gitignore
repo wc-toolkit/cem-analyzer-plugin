@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# CEM analyzer output
+custom-elements.json
+
+# TypeScript
+*.tsbuildinfo
+
+# OS
+.DS_Store
