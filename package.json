@@ -55,5 +55,13 @@
     "typescript": "^5.9.2",
     "vite": ">=5.0.0",
     "webpack": "^4.0.0 || ^5.0.0"
+  },
+  "lint-staged": {
+    "*.ts": "eslint --cache --fix",
+    "*.--write": "prettier --write"
+  },
+  "publishConfig": {
+    "provenance": true,
+    "access": "public"
   }
 }
