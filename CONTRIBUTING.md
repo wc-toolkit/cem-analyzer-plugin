@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for contributing to `cem-analyzer-plugin`.
+Thanks for contributing to `@wc-toolkit/cem-analyzer-plugin`.
 
 ## Prerequisites
 
