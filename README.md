@@ -5,7 +5,7 @@ Generate and keep `custom-elements.json` up to date by running the [Custom Eleme
 ## Install
 
 ```sh
-npm install -D cem-analyzer-plugin @custom-elements-manifest/analyzer
+npm install -D @wc-toolkit/cem-analyzer-plugin @custom-elements-manifest/analyzer
 ```
 
 ## Quick start
@@ -15,7 +15,7 @@ npm install -D cem-analyzer-plugin @custom-elements-manifest/analyzer
 ```ts
 // vite.config.ts
 import { defineConfig } from "vite";
-import { cemAnalyzerPlugin } from "cem-analyzer-plugin";
+import { cemAnalyzerPlugin } from "@wc-toolkit/cem-analyzer-plugin/vite";
 
 export default defineConfig({
   plugins: [
@@ -33,7 +33,7 @@ export default defineConfig({
 
 ```js
 // rollup.config.js
-import { cemAnalyzerPlugin } from "cem-analyzer-plugin";
+import { cemAnalyzerPlugin } from "@wc-toolkit/cem-analyzer-plugin/vite";
 
 export default {
   input: "src/index.ts",
@@ -45,7 +45,7 @@ export default {
 
 ```js
 // rolldown.config.js
-import { cemAnalyzerPlugin } from "cem-analyzer-plugin";
+import { cemAnalyzerPlugin } from "@wc-toolkit/cem-analyzer-plugin/vite";
 
 export default {
   input: "src/index.ts",

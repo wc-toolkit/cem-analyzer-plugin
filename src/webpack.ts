@@ -65,7 +65,7 @@ export interface CemAnalyzerWebpackPluginOptions extends CemAnalyzerCoreOptions 
  * @example
  * ```js
  * // webpack.config.js
- * const { CemAnalyzerWebpackPlugin } = require("cem-analyzer-plugin/webpack");
+ * const { CemAnalyzerWebpackPlugin } = require("@wc-toolkit/cem-analyzer-plugin/webpack");
  *
  * module.exports = {
  *   plugins: [
