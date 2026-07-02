@@ -1,6 +1,6 @@
 {
   "name": "@wc-toolkit/cem-analyzer-plugin",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Vite/Rollup/Webpack plugins to run Custom Elements Manifest Analyzer",
   "type": "module",
   "main": "./dist/index.cjs",
