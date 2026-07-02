@@ -15,7 +15,7 @@ interface ViteResolvedConfig {
 
 /** Minimal Vite dev server shape used by this plugin. */
 interface ViteDevServer {
-  config: { logger: { warn(msg: string): void } };
+  config: { logger: { warn(msg: string): void; error?(msg: string): void } };
   watcher: {
     on(event: "add" | "change" | "unlink", handler: (path: string) => void): void;
   };
@@ -56,6 +56,9 @@ export function cemAnalyzerPlugin(options: CemAnalyzerPluginOptions = {}): Plugi
   let configInitialized = false;
   let runner: AnalyzerRunner | undefined;
   let warnedAboutWatch = false;
+  let reportError: (error: Error) => void = (error) => {
+    console.error(error.message);
+  };
 
   const initialize = (): void => {
     if (configInitialized) return;
@@ -63,7 +66,9 @@ export function cemAnalyzerPlugin(options: CemAnalyzerPluginOptions = {}): Plugi
 
     const resolvedAnalyzerConfig = resolveAnalyzerConfig(root, options.config);
     assertConfigSatisfied(options, resolvedAnalyzerConfig);
-    runner = new AnalyzerRunner(root, options, resolvedAnalyzerConfig);
+    runner = new AnalyzerRunner(root, options, resolvedAnalyzerConfig, {
+      onError: (error) => reportError(error),
+    });
   };
 
   return {
@@ -108,7 +113,15 @@ export function cemAnalyzerPlugin(options: CemAnalyzerPluginOptions = {}): Plugi
         );
       }
 
-      void runner!.run();
+      reportError = (error) => {
+        if (server.config.logger.error) {
+          server.config.logger.error(error.message);
+          return;
+        }
+        server.config.logger.warn(error.message);
+      };
+
+      void runner!.run().catch(reportError);
 
       const queueRun = (filePath: string): void => {
         if (!shouldTrigger(filePath)) {

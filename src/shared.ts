@@ -25,6 +25,47 @@ type OverrideModuleCreation = (args: { ts: unknown; globs: string[] }) => unknow
 /** Factory function that returns a CEM analyzer plugin instance. */
 type AnalyzerPluginFactory = () => unknown;
 
+export interface AnalyzerRunnerHooks {
+  onError?: (error: Error) => void;
+}
+
+function toError(value: unknown): Error {
+  return value instanceof Error ? value : new Error(String(value));
+}
+
+function formatCemCommand(args: string[]): string {
+  return `cem ${args.join(" ")}`;
+}
+
+function createAnalyzerRunError(root: string, args: string[], error: unknown): Error {
+  const normalizedError = toError(error);
+  const code = (normalizedError as { code?: string }).code;
+  const base =
+    `[cem-analyzer-plugin] Failed to run "${formatCemCommand(args)}". ` +
+    `Working directory: ${root}`;
+
+  if (code === "ENOENT") {
+    const hints = [
+      "Install @custom-elements-manifest/analyzer in this workspace so the local `cem` binary is available.",
+      "If your process runs with a minimal PATH (some GUI tools/CI setups), ensure local package binaries are discoverable.",
+    ];
+
+    if (process.versions.pnp) {
+      hints.push(
+        "Yarn Plug'n'Play was detected. Ensure @custom-elements-manifest/analyzer is declared in the workspace where this plugin runs."
+      );
+    }
+
+    return new Error(`${base}\n${hints.map((hint) => `- ${hint}`).join("\n")}`, {
+      cause: normalizedError,
+    });
+  }
+
+  return new Error(`${base}\n${normalizedError.message}`, {
+    cause: normalizedError,
+  });
+}
+
 /**
  * Options shared across all bundler integrations (Vite, Rollup, Rolldown, webpack).
  *
@@ -216,6 +257,7 @@ export class AnalyzerRunner {
   #options: CemAnalyzerCoreOptions;
   #resolvedAnalyzerConfig: string | undefined;
   #debounceMs: number;
+  #onError: (error: Error) => void;
 
   #runInFlight = false;
   #queuedRun = false;
@@ -224,12 +266,14 @@ export class AnalyzerRunner {
   constructor(
     root: string,
     options: CemAnalyzerCoreOptions,
-    resolvedAnalyzerConfig: string | undefined
+    resolvedAnalyzerConfig: string | undefined,
+    hooks: AnalyzerRunnerHooks = {}
   ) {
     this.#root = root;
     this.#options = options;
     this.#resolvedAnalyzerConfig = resolvedAnalyzerConfig;
     this.#debounceMs = options.debounceMs ?? 120;
+    this.#onError = hooks.onError ?? ((error) => console.error(error.message));
   }
 
   /** Runs the analyzer immediately, coalescing overlapping calls. */
@@ -244,16 +288,21 @@ export class AnalyzerRunner {
       do {
         this.#queuedRun = false;
 
-        const args = ["exec", "cem", "analyze"];
+        const args = ["analyze"];
         if (this.#resolvedAnalyzerConfig) {
           args.push("--config", this.#resolvedAnalyzerConfig);
         }
         args.push(...toCliArgs(this.#options));
 
-        await execa("pnpm", args, {
-          cwd: this.#root,
-          stdio: "inherit",
-        });
+        try {
+          await execa("cem", args, {
+            cwd: this.#root,
+            preferLocal: true,
+            stdio: "inherit",
+          });
+        } catch (error: unknown) {
+          throw createAnalyzerRunError(this.#root, args, error);
+        }
       } while (this.#queuedRun);
     } finally {
       this.#runInFlight = false;
@@ -266,7 +315,9 @@ export class AnalyzerRunner {
       clearTimeout(this.#timer);
     }
     this.#timer = setTimeout(() => {
-      void this.run();
+      void this.run().catch((error: unknown) => {
+        this.#onError(toError(error));
+      });
     }, this.#debounceMs);
   }
 
