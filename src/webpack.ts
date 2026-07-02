@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { isAbsolute, resolve } from "node:path";
 import {
   AnalyzerRunner,
   assertConfigSatisfied,
@@ -93,9 +95,23 @@ export class CemAnalyzerWebpackPlugin {
 
     const resolvedAnalyzerConfig = resolveAnalyzerConfig(root, this.#options.config);
     assertConfigSatisfied(this.#options, resolvedAnalyzerConfig);
-    this.#runner = new AnalyzerRunner(root, this.#options, resolvedAnalyzerConfig);
+    this.#runner = new AnalyzerRunner(root, this.#options, resolvedAnalyzerConfig, {
+      onError: (error) => {
+        console.error(error.message);
+      },
+    });
 
     const { watchPaths = [] } = this.#options;
+    const normalizedWatchPaths = watchPaths.map((path) =>
+      isAbsolute(path) ? path : resolve(root, path)
+    );
+    const missingWatchPaths = normalizedWatchPaths.filter((path) => !existsSync(path));
+
+    if (missingWatchPaths.length) {
+      console.warn(
+        `[cem-analyzer-plugin] Some watchPaths do not exist and may never trigger re-runs: ${missingWatchPaths.join(", ")}`
+      );
+    }
 
     // One-off build: `webpack` / `compiler.run()`
     compiler.hooks.beforeRun.tapPromise(CemAnalyzerWebpackPlugin.#pluginName, async () => {
@@ -130,7 +146,7 @@ export class CemAnalyzerWebpackPlugin {
       compiler.hooks.afterCompile.tap(
         CemAnalyzerWebpackPlugin.#pluginName,
         (compilation) => {
-          for (const path of watchPaths) {
+          for (const path of normalizedWatchPaths) {
             compilation.fileDependencies.add(path);
           }
         }
